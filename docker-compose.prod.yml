@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn cicd_django_aws_testing.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - .:/code
+      - static_volume:/code/staticfiles
+    expose:
+      - 8000
+    env_file:
+      - .env.prod
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/code/staticfiles:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+  
+volumes:
+  static_volume:
